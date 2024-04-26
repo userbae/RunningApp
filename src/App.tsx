@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Router from "./components/Router";
+import { auth } from "fbase";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const [init, setInit] = useState(false);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    !!auth?.currentUser
   );
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // logged in
+        setIsAuthenticated(true);
+      } else {
+        // logged out
+        setIsAuthenticated(false);
+      }
+      setInit(true);
+    });
+  }, [auth]);
+  return <>{init ? <Router isAuthenticated={isAuthenticated} /> : <></>}</>;
 }
 
 export default App;
